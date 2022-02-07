@@ -29,7 +29,7 @@ uint8_t ihue = 0;
 // CONFETTI {{{
 
 void sparklesRoutine() {
-  for (byte i = 0; i < modes[0].scale; i++) {
+  for (byte i = 0; i < 40; i++) {
     byte x = random(0, WIDTH);
     byte y = random(0, HEIGHT);
     if (getPixColorXY(x, y) == 0)
@@ -152,7 +152,7 @@ void drawFrame(int pcnt) {
           - pgm_read_byte(&(valueMask[y][newX]));
 
         CRGB color = CHSV(
-                       modes[1].scale * 2.5 + pgm_read_byte(&(hueMask[y][newX])), // H
+                       100 + pgm_read_byte(&(hueMask[y][newX])), // H
                        255, // S
                        (uint8_t)max(0, nextv) // V
                      );
@@ -177,7 +177,7 @@ void drawFrame(int pcnt) {
     uint8_t newX = x;
     if (x > 15) newX = x - 15;
     CRGB color = CHSV(
-                   modes[1].scale * 2.5 + pgm_read_byte(&(hueMask[0][newX])), // H
+                   100 + pgm_read_byte(&(hueMask[0][newX])), // H
                    255,           // S
                    (uint8_t)(((100.0 - pcnt) * matrixValue[0][newX] + pcnt * line[newX]) / 100.0) // V
                  );
@@ -191,6 +191,7 @@ void drawFrame(int pcnt) {
 // SNOWFLAKES {{{
 
 void snowRoutine() {
+  delay(50);
   // сдвигаем всё вниз
   for (byte x = 0; x < WIDTH; x++) {
     for (byte y = 0; y < HEIGHT - 1; y++) {
@@ -201,7 +202,7 @@ void snowRoutine() {
   for (byte x = 0; x < WIDTH; x++) {
     // заполняем случайно верхнюю строку
     // а также не даём двум блокам по вертикали вместе быть
-    if (getPixColorXY(x, HEIGHT - 2) == 0 && (random(0, modes[6].scale) == 0))
+    if (getPixColorXY(x, HEIGHT - 2) == 0 && (random(0, 40) == 0))
       drawPixelXY(x, HEIGHT - 1, 0xE0FFFF - 0x101010 * random(0, 4));
     else
       drawPixelXY(x, HEIGHT - 1, 0x000000);
@@ -214,6 +215,7 @@ void snowRoutine() {
 // RAIN {{{
 
 void matrixRoutine() {
+  delay(90);
   for (byte x = 0; x < WIDTH; x++) {
     // заполняем случайно верхнюю строку
     uint32_t thisColor = getPixColorXY(x, HEIGHT - 1);
@@ -241,8 +243,8 @@ void matrixRoutine() {
 void madnessNoise() {
   if (loadingFlag) {
     loadingFlag = false;
-    scale = modes[4].scale;
-    speed = modes[4].speed;
+    scale = 40;
+    speed = 30;
   }
   fillnoise8();
   for (int i = 0; i < WIDTH; i++) {
@@ -263,8 +265,8 @@ void cloudNoise() {
   if (loadingFlag) {
     loadingFlag = false;
     currentPalette = CloudColors_p;
-    scale = modes[5].scale;
-    speed = modes[5].speed;
+    scale = 40;
+    speed = 30;
     colorLoop = 0;
   }
   fillNoiseLED();

@@ -4,7 +4,7 @@
 #include "fonts.h"
 
 
-#define BRIGHTNESS 40
+#define BRIGHTNESS 70
 #define CURRENT_LIMIT 2000
 
 
@@ -19,6 +19,8 @@
 #define NUM_LEDS WIDTH * HEIGHT
 #define SEGMENTS 1            // num of diods in one pixel
 
+#define MODE_AMOUNT 7
+
 #define COLOR_ORDER BGR  // good flame, red matrix
 //#define COLOR_ORDER BRG  // blue flame, blue matrix
 //#define COLOR_ORDER RGB  // pinky flame, blue-green ocean, red matrix
@@ -31,11 +33,8 @@
 
 // PINS {{{
 
-#define LED_PIN 5
-#define BUTTON_MODE_PIN 3
-#define BUTTON_NEXT_PIN 4
-#define BUTTON_PREV_PIN 2
-#define MODE_AMOUNT 8
+#define LED_PIN 12
+#define BUTTON_MODE_PIN 11
 
 // }}}
 
@@ -56,13 +55,6 @@ TroykaMeteoSensor meteoSensor;
 
 // VARS {{{
 
-// struct defines effect params
-struct {
-  byte brightness = 10;
-  byte speed = 30;  // 30 is good for flame
-  byte scale = 40;  // 40 is ok 100 makes flame blue, 10 makes pinky
-} modes[MODE_AMOUNT];
-
 // struct defines climate info with corresponding color
 struct Text {
     CRGB color;
@@ -70,10 +62,9 @@ struct Text {
 };
 
 boolean loadingFlag = true;  // flag of initial state, used by effects to set some init params
+boolean changingStateFlag = false;
 
-int8_t global_mode = 0;          // 0 - effects, 1 - climate info
-int8_t currentMode = 0;          // initial effect
-int8_t brightness = BRIGHTNESS;  // initial brightness
+int8_t currentMode = 1;      // initial effect - fire
 
 unsigned char matrixValue[8][16];
 
@@ -94,8 +85,7 @@ void setup() {
   
     // init buttons
     pinMode(BUTTON_MODE_PIN, INPUT_PULLUP);
-    pinMode(BUTTON_NEXT_PIN, INPUT_PULLUP);
-    pinMode(BUTTON_PREV_PIN, INPUT_PULLUP);
+    pinMode(13, OUTPUT);
   
     ccs.begin();
     meteoSensor.begin();
@@ -105,14 +95,19 @@ void setup() {
 
 void loop() {
 
-    // check buttons and change states accordingly
-    buttonsTick();
- 
-    // run something according to mode state
-    if (global_mode == 0) {
-        effectsTick();
+
+    if (digitalRead(BUTTON_MODE_PIN)) {
+        if (!changingStateFlag) {
+            changingStateFlag = true;
+
+  
+            // switch to next effect
+            currentMode++;
+            if (currentMode >= MODE_AMOUNT) currentMode = 0;
+        }
     } else {
-        climateTick();
+        changingStateFlag = false;
     }
 
+    effectsTick();
 }

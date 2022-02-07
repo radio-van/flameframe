@@ -2,7 +2,7 @@
 #define MIRR_V 0          // mirror vertically
 #define MIRR_H 0          // mirror horizontally
 
-#define TEXT_HEIGHT 4     // vertical offset from bottom edge of the matrix
+#define TEXT_HEIGHT 3     // vertical offset from bottom edge of the matrix
 #define LET_WIDTH 5       // letter width
 #define LET_HEIGHT 8      // letter height
 #define SPACE 1           // space width
@@ -17,7 +17,7 @@ void resetString() {
 }
 
 
-boolean fillString(Text text_list[], boolean clear) {
+boolean fillString(String text, CRGB colors[4], boolean clear) {
     if (loadingFlag) {
       offset = WIDTH;  // rewind to the right edge
       loadingFlag = false;
@@ -28,25 +28,18 @@ boolean fillString(Text text_list[], boolean clear) {
 
         if (clear) FastLED.clear();
 
-        String result_text = "";
-
-        for (byte t = 0; t < 4; t++) {
-            result_text.concat(text_list[t].text);
-            result_text.concat(" ");
-        }
-
         byte i = 0, j = 0;
 
         int color_count = 0;
-        while (result_text[i] != '\0') {
+        while (text[i] != '\0') {
             // pick next color
-            if (result_text[i] == ' ') {
+            if (text[i] == ' ') {
                 color_count++;
             }
-            if ((byte)result_text[i] > 191) {  // workaround Russian letters
+            if ((byte)text[i] > 191) {  // workaround Russian letters
                 i++;
             } else {
-                drawLetter(j, result_text[i], offset + j * (LET_WIDTH + SPACE), text_list[color_count].color);
+                drawLetter(j, text[i], offset + j * (LET_WIDTH + SPACE), colors[color_count]);
                 i++;
                 j++;
             }
